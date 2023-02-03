@@ -16,67 +16,16 @@ namespace Clock;
 /// </summary>
 public partial class SegmentClock : UserControl
 {
-    private Path[][] _d;
-    private Path[] _points;
+    public static readonly DependencyProperty SegmentLengthProperty =
+                       DependencyProperty.RegisterAttached("SegmentLength", typeof(double), typeof(SegmentClock), new FrameworkPropertyMetadata(100d, OnSizeChanged));
 
-    public double SegmentThickness = 20;
-    public double SegmentLength = 100;
-    public double SegmentGap = 4;
+    public static readonly DependencyProperty SegmentWidthProperty =
+                       DependencyProperty.RegisterAttached("SegmentWidth", typeof(double), typeof(SegmentClock), new FrameworkPropertyMetadata(20d, OnSizeChanged));
 
-    public SegmentClock()
-    {
-        InitializeComponent();
+    public static readonly DependencyProperty SegmentGapProperty =
+                       DependencyProperty.RegisterAttached("SegmentGap", typeof(double), typeof(SegmentClock), new FrameworkPropertyMetadata(4d, OnSizeChanged));
 
-        Task.Run(ClockWork);
-
-        double w = SegmentThickness;
-        double l = SegmentLength;
-        double g = SegmentGap;
-
-        canvas.Width = 4 * w + 4 * l + 12 * g;
-        canvas.Height = 2 * l + w + 4 * g;
-
-        _d = new Path[][]
-        {
-            GetDigit(w/2, w/2, w, l, g),
-            GetDigit(3 * w / 2 + l + 3 * g, w / 2, w, l, g),
-            GetDigit(5*w/2+2*l+7*g, w/2, w, l, g),            
-            GetDigit(7*w/2+3*l+10*g, w/2, w, l, g),            
-        };
-        _points = GetPoints(w / 2 + g + l + g + w / 2 + g + w / 2 + g + l + g + g, w/2 + g + l + g, w, l, g);
-
-        Binding binding = new("Foreground")
-        {
-            Source = this
-        };
-
-        foreach (Path path in _d.SelectMany(d => d).Concat(_points))
-        {
-            canvas.Children.Add(path);
-            path.SetBinding(Path.FillProperty, binding);
-        }
-    }
-
-    private void ClockWork()
-    {
-        while(true)
-        {
-            Thread.Sleep(100);
-            DateTime dt = DateTime.Now;
-            Dispatcher.Invoke(() => Update(dt.Hour*100+dt.Minute));
-        }
-    }
-
-    private void Update(int value)
-    {
-        for(int i = _d.Length - 1; i >= 0; i--, value/=10)
-            SetDigit(_d[i], Map[value%10]);
-
-        foreach (Path p in _points)
-            p.Visibility = GetVisibility(DateTime.Now.Millisecond > 500);
-    }
-
-    private static Dictionary<int, int> Map = new()
+    private static readonly Dictionary<int, int> Map = new()
     {
         { 0, 0b0111111 },
         { 1, 0b0000110 },
@@ -89,7 +38,30 @@ public partial class SegmentClock : UserControl
         { 8, 0b1111111 },
         { 9, 0b1101111 },
     };
-    private void SetDigit(Path[] d, int value)
+
+    private Path[][] _d = Array.Empty<Path[]>();
+    private Path[] _points = Array.Empty<Path>();
+
+    public SegmentClock()
+    {
+        InitializeComponent();
+        ReDraw();
+        Task.Run(ClockWork);
+    }
+
+    public double SegmentLength { get => (double)GetValue(SegmentLengthProperty); set => SetValue(SegmentLengthProperty, value); }
+    public double SegmentWidth { get => (double)GetValue(SegmentWidthProperty); set => SetValue(SegmentWidthProperty, value); }
+    public double SegmentGap { get => (double)GetValue(SegmentGapProperty); set => SetValue(SegmentGapProperty, value); }
+
+    private static void OnSizeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+    {
+        if (d is not SegmentClock clock)
+            return;
+
+        clock.ReDraw();
+    }
+
+    private static void SetDigit(Path[] d, int value)
     {
         for (int i = 0; i < d.Length; i++, value >>= 1)
             d[i].Visibility = GetVisibility((value & 1) != 0);
@@ -97,17 +69,19 @@ public partial class SegmentClock : UserControl
 
     private static Visibility GetVisibility(bool v) => v ? Visibility.Visible : Visibility.Hidden;
 
-    private Path[] GetPoints(double x, double y, double w, double l, double g)
+    private static Path[] GetPoints(ref double x, double y, double w, double l, double g)
     {
-        string data = $"M 0 0 {w / 2} {-w / 2} {w} 0 {w/2} {w/2}";
-        return new Path[]
+        string data = $"M 0 0 {w / 2} {-w / 2} {w} 0 {w / 2} {w / 2}";
+        Path[] result = new Path[]
         {
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x, y)  },
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x, y + l + 2 * g) },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x - w, y)  },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x - w, y + l + 2 * g) },
         };
+        x += g;
+        return result;
     }
 
-    private Path[] GetDigit(double x, double y, double w, double l, double g)
+    private static Path[] GetDigit(ref double x, double y, double w, double l, double g)
     {
         string data = $"M 0 0 {w / 2} {-w / 2} H {l - w / 2} L {l} 0 {l - w / 2} {w / 2} H {w / 2} Z";
 
@@ -117,15 +91,73 @@ public partial class SegmentClock : UserControl
          * e     c
          *    d
          */
-        return new Path[]
+        Path[] result = new Path[]
         {
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x + g, y) },
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x + l + 2 * g, y + g) } } },
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x + l + 2 * g, y + l + 3 * g) } } },
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x + g, y + 2 * l + 4 * g) },
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x, y + l + 3 * g) } } },
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x, y + g) } } },
-            new Path { Fill = Foreground, Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x + g, y + l + 2 * g) },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x + g, y) },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x + l + 2 * g, y + g) } } },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x + l + 2 * g, y + l + 3 * g) } } },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x + g, y + 2 * l + 4 * g) },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x, y + l + 3 * g) } } },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TransformGroup(){ Children = new TransformCollection{ new RotateTransform(90), new TranslateTransform(x, y + g) } } },
+            new Path { Data = Geometry.Parse(data), RenderTransform = new TranslateTransform(x + g, y + l + 2 * g) },
         };
+        x += l + w + 3 * g;
+        return result;
+    }
+
+    private void ReDraw()
+    {
+        double w = SegmentWidth;
+        double l = SegmentLength;
+        double g = SegmentGap;
+
+        canvas.Width = 4 * w + 4 * l + 12 * g;
+        canvas.Height = 2 * l + w + 4 * g;
+
+        List<Path[]> digits = new();
+        List<Path[]> points = new();
+        double x = w / 2;
+
+        digits.Add(GetDigit(ref x, w / 2, w, l, g));
+        digits.Add(GetDigit(ref x, w / 2, w, l, g));
+
+        points.Add(GetPoints(ref x, w / 2 + g + l + g, w, l, g));
+
+        digits.Add(GetDigit(ref x, w / 2, w, l, g));
+        digits.Add(GetDigit(ref x, w / 2, w, l, g));
+
+        Binding binding = new("Foreground")
+        {
+            Source = this
+        };
+
+        canvas.Children.Clear();
+        foreach (Path path in digits.SelectMany(d => d).Concat(points.SelectMany(p => p)))
+        {
+            canvas.Children.Add(path);
+            path.SetBinding(Path.FillProperty, binding);
+        }
+
+        _d = digits.ToArray();
+        _points = points.SelectMany(p => p).ToArray();
+    }
+
+    private void ClockWork()
+    {
+        while (true)
+        {
+            Thread.Sleep(100);
+            DateTime dt = DateTime.Now;
+            Dispatcher.Invoke(() => Update(dt.Hour * 100 + dt.Minute));
+        }
+    }
+
+    private void Update(int value)
+    {
+        for (int i = _d.Length - 1; i >= 0; i--, value /= 10)
+            SetDigit(_d[i], Map[value % 10]);
+
+        foreach (Path p in _points)
+            p.Visibility = GetVisibility(DateTime.Now.Millisecond > 500);
     }
 }

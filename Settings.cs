@@ -17,6 +17,9 @@ public class Settings : INotifyPropertyChanged
     private double _opacity = 0.5;
     private double _height = 200;
     private bool _startWithWindows;
+    private double _segmentWidth = 20;
+    private double _segmentLength = 100;
+    private double _segmentGap = 4;
     private bool _isDirty;
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -29,6 +32,10 @@ public class Settings : INotifyPropertyChanged
     public double Height { get => _height; set => Set(ref _height, value); }
     public bool StartWithWindows { get => _startWithWindows; set => Set(ref _startWithWindows, value); }
     [JsonIgnore] public bool IsDirty { get => _isDirty; set => Set(ref _isDirty, value); }
+    public double SegmentWidth { get => _segmentWidth; set => Set(ref _segmentWidth, value); }
+    public double SegmentLength { get => _segmentLength; set => Set(ref _segmentLength, value); }
+    public double SegmentGap { get => _segmentGap; set => Set(ref _segmentGap, value); }
+
 
     public void RaisePropertyChanged(string? propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 

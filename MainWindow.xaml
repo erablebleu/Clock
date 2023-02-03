@@ -25,6 +25,29 @@
             <MenuItem Header="Start with Windows" IsCheckable="True" IsChecked="{Binding StartWithWindows}"/>
             <Separator/>
             <MenuItem Header="Lock Position" IsCheckable="True" IsChecked="{Binding IsPositionLocked}"/>
+            <GroupBox Header="Height" Width="200">
+                <xctk:DoubleUpDown Value="{Binding Height}" Minimum="10" Maximum="1000"/>
+            </GroupBox>
+            <Separator/>
+            <GroupBox Header="Segment Length" Width="200">
+                <DockPanel>
+                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="1" FormatString="F0" Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
+                    <Slider Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
+                </DockPanel>
+            </GroupBox>
+            <GroupBox Header="Segment Width" Width="200">
+                <DockPanel>
+                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="1" FormatString="F0" Minimum="1" Maximum="100" Value="{Binding SegmentWidth}"/>
+                    <Slider Minimum="1" Maximum="100" Value="{Binding SegmentWidth}"/>
+                </DockPanel>
+            </GroupBox>
+            <GroupBox Header="Segment Gap" Width="200">
+                <DockPanel>
+                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="0.1" FormatString="F1" Minimum="0" Maximum="30" Value="{Binding SegmentGap}"/>
+                    <Slider Minimum="0" Maximum="30" Value="{Binding SegmentGap}"/>
+                </DockPanel>
+            </GroupBox>
+            <Separator/>
             <MenuItem Header="Hide for...">
                 <MenuItem Header="1 min" Click="Hide_1"/>
                 <MenuItem Header="5 min" Click="Hide_5"/>
@@ -32,6 +55,7 @@
                 <MenuItem Header="30 min" Click="Hide_30"/>
                 <MenuItem Header="1 hour" Click="Hide_60"/>
             </MenuItem>
+            <Separator/>
             <GroupBox Header="Color" Width="200">
                 <xctk:ColorPicker SelectedColor="{Binding Color, Mode=TwoWay}"/>
             </GroupBox>
@@ -41,12 +65,15 @@
                     <Slider Minimum="0" Maximum="1" Value="{Binding Opacity}"/>
                 </DockPanel>
             </GroupBox>
-            <GroupBox Header="Height" Width="200">
-                <xctk:DoubleUpDown Value="{Binding Height}" Minimum="10" Maximum="1000"/>
-            </GroupBox>
             <Separator/>
             <MenuItem Header="Close" Click="Close_Click" />
         </ContextMenu>
     </Window.ContextMenu>
-    <local:SegmentClock x:Name="clock" Height="{Binding Height}" VerticalAlignment="Top" HorizontalAlignment="Left" Foreground="{Binding Color, Converter={StaticResource ColorToBrushConverter}, Mode=OneWay}"/>
+    <local:SegmentClock x:Name="clock" Height="{Binding Height}" 
+                        VerticalAlignment="Top" 
+                        HorizontalAlignment="Left" 
+                        SegmentGap="{Binding SegmentGap}"
+                        SegmentWidth="{Binding SegmentWidth}"
+                        SegmentLength="{Binding SegmentLength}"
+                        Foreground="{Binding Color, Converter={StaticResource ColorToBrushConverter}, Mode=OneWay}"/>
 </Window>
