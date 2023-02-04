@@ -12,4 +12,4 @@ The clock use two registry keys:
 - Double click on .exe
 
 # Demo
-![demo](https://raw.githubusercontent.com/erablebleu/WinClock/master/demo.gif)
+![demo](https://raw.githubusercontent.com/erablebleu/Clock/master/demo.gif)
