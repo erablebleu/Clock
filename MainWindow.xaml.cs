@@ -59,7 +59,7 @@ public partial class MainWindow : Window
     private void UpdateStartup()
     {        
         if (Settings.StartWithWindows)
-            RegHelper.SetKeyValue(RegHelper.StartupKey, AppName, Process.GetCurrentProcess().MainModule!.FileName);
+            RegHelper.SetKeyValue(RegHelper.StartupKey, AppName, $"\"{Process.GetCurrentProcess().MainModule!.FileName}\"");
         else
             RegHelper.DeleteKeyValue(RegHelper.StartupKey, AppName);
     }
