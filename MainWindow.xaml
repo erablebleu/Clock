@@ -26,12 +26,15 @@
             <Separator/>
             <MenuItem Header="Lock Position" IsCheckable="True" IsChecked="{Binding IsPositionLocked}"/>
             <GroupBox Header="Height" Width="200">
-                <xctk:DoubleUpDown Value="{Binding Height}" Minimum="10" Maximum="1000"/>
+                <DockPanel>
+                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="10" FormatString="F0" Minimum="20" Maximum="1000" Value="{Binding Height}"/>
+                    <Slider Minimum="20" Maximum="1000" Value="{Binding Height}"/>
+                </DockPanel>
             </GroupBox>
             <Separator/>
             <GroupBox Header="Segment Length" Width="200">
                 <DockPanel>
-                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="1" FormatString="F0" Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
+                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" FormatString="F0" Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
                     <Slider Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
                 </DockPanel>
             </GroupBox>

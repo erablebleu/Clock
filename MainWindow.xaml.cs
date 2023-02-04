@@ -74,6 +74,7 @@ public partial class MainWindow : Window
 
     private void Close_Click(object sender, RoutedEventArgs e)
     {
+        Save();
         Close();
     }
 
