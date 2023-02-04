@@ -23,33 +23,7 @@
     <Window.ContextMenu>
         <ContextMenu Closed="ContextMenu_Closed" >
             <MenuItem Header="Start with Windows" IsCheckable="True" IsChecked="{Binding StartWithWindows}"/>
-            <Separator/>
             <MenuItem Header="Lock Position" IsCheckable="True" IsChecked="{Binding IsPositionLocked}"/>
-            <GroupBox Header="Height" Width="200">
-                <DockPanel>
-                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="10" FormatString="F0" Minimum="20" Maximum="1000" Value="{Binding Height}"/>
-                    <Slider Minimum="20" Maximum="1000" Value="{Binding Height}"/>
-                </DockPanel>
-            </GroupBox>
-            <Separator/>
-            <GroupBox Header="Segment Length" Width="200">
-                <DockPanel>
-                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" FormatString="F0" Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
-                    <Slider Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
-                </DockPanel>
-            </GroupBox>
-            <GroupBox Header="Segment Width" Width="200">
-                <DockPanel>
-                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="1" FormatString="F0" Minimum="1" Maximum="100" Value="{Binding SegmentWidth}"/>
-                    <Slider Minimum="1" Maximum="100" Value="{Binding SegmentWidth}"/>
-                </DockPanel>
-            </GroupBox>
-            <GroupBox Header="Segment Gap" Width="200">
-                <DockPanel>
-                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="0.1" FormatString="F1" Minimum="0" Maximum="30" Value="{Binding SegmentGap}"/>
-                    <Slider Minimum="0" Maximum="30" Value="{Binding SegmentGap}"/>
-                </DockPanel>
-            </GroupBox>
             <Separator/>
             <MenuItem Header="Hide for...">
                 <MenuItem Header="1 min" Click="Hide_1"/>
@@ -59,15 +33,48 @@
                 <MenuItem Header="1 hour" Click="Hide_60"/>
             </MenuItem>
             <Separator/>
-            <GroupBox Header="Color" Width="200">
-                <xctk:ColorPicker SelectedColor="{Binding Color, Mode=TwoWay}"/>
-            </GroupBox>
-            <GroupBox Header="Opacity" Width="200">
-                <DockPanel>
-                    <xctk:DoubleUpDown DockPanel.Dock="Right" Width="50" Increment="0.1" FormatString="F1" Minimum="0" Maximum="1" Value="{Binding Opacity}"/>
-                    <Slider Minimum="0" Maximum="1" Value="{Binding Opacity}"/>
-                </DockPanel>
-            </GroupBox>
+            <MenuItem Width="300">
+                <MenuItem.Template>
+                    <ControlTemplate>
+
+                        <Grid Margin="35,0,0,0">
+                            <Grid.Resources>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Margin" Value="2"/>
+                                    <Setter Property="TextAlignment" Value="Right"/>
+                                    <Setter Property="VerticalAlignment" Value="Center"/>
+                                </Style>
+                            </Grid.Resources>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Column="0" Grid.Row="0" TextAlignment="Right" Text="Height"/>
+                            <TextBlock Grid.Column="0" Grid.Row="1" TextAlignment="Right" Text="Segment Length"/>
+                            <TextBlock Grid.Column="0" Grid.Row="2" TextAlignment="Right" Text="Segment Width"/>
+                            <TextBlock Grid.Column="0" Grid.Row="3" TextAlignment="Right" Text="Segment Gap"/>
+                            <TextBlock Grid.Column="0" Grid.Row="4" TextAlignment="Right" Text="Opacity"/>
+                            <TextBlock Grid.Column="0" Grid.Row="5" TextAlignment="Right" Text="Color"/>
+
+                            <Slider Grid.Column="1" Grid.Row="0" Minimum="20" Maximum="1000" Value="{Binding Height}"/>
+                            <Slider Grid.Column="1" Grid.Row="1" Minimum="1" Maximum="500" Value="{Binding SegmentLength}"/>
+                            <Slider Grid.Column="1" Grid.Row="2" Minimum="1" Maximum="100" Value="{Binding SegmentWidth}"/>
+                            <Slider Grid.Column="1" Grid.Row="3" Minimum="0" Maximum="30" Value="{Binding SegmentGap}"/>
+                            <Slider Grid.Column="1" Grid.Row="4" Minimum="0.1" Maximum="1" Value="{Binding Opacity}"/>
+                            <xctk:ColorPicker BorderThickness="0" Grid.Column="1" Grid.Row="5" SelectedColor="{Binding Color, Mode=TwoWay}"/>
+                        </Grid>
+                    </ControlTemplate>
+                </MenuItem.Template>
+            </MenuItem>        
             <Separator/>
             <MenuItem Header="Close" Click="Close_Click" />
         </ContextMenu>
