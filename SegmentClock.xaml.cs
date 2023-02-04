@@ -140,6 +140,8 @@ public partial class SegmentClock : UserControl
 
         _d = digits.ToArray();
         _points = points.SelectMany(p => p).ToArray();
+
+        Update();
     }
 
     private void ClockWork()
@@ -147,11 +149,12 @@ public partial class SegmentClock : UserControl
         while (true)
         {
             Thread.Sleep(100);
-            DateTime dt = DateTime.Now;
-            Dispatcher.Invoke(() => Update(dt.Hour * 100 + dt.Minute));
+            Dispatcher.Invoke(Update);
         }
     }
 
+    private void Update() => Update(DateTime.Now);
+    private void Update(DateTime dt) => Update(dt.Hour * 100 + dt.Minute);
     private void Update(int value)
     {
         for (int i = _d.Length - 1; i >= 0; i--, value /= 10)
